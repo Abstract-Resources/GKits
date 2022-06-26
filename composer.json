@@ -1,6 +1,6 @@
 {
-  "name": "abstract/plugin_name",
-  "description": "Description",
+  "name": "abstract/abstractkits",
+  "description": "AbstractKits paid plugin developed by Abstract Resources",
   "minimum-stability": "dev",
   "license": "Apache-2.0",
 

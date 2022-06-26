@@ -1,0 +1,11 @@
+Bard:
+  armor: []
+  items:
+    -
+      id: DIAMOND
+      name: "ASD"
+      lore: []
+  icon:
+    id: DIAMOND
+    name: "ASD"
+    lore: []
