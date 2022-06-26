@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 use pocketmine\utils\Git;
 use pocketmine\utils\Terminal;
 
-require_once("vendor\pocketmine\pocketmine-mp\src\pocketmine\utils\Git.php");
-require_once("vendor\pocketmine\pocketmine-mp\src\pocketmine\utils\Process.php");
-require_once("vendor\pocketmine\pocketmine-mp\src\pocketmine\utils\Terminal.php");
-require_once("vendor\pocketmine\pocketmine-mp\src\pocketmine\utils\Utils.php");
+require_once("vendor\pocketmine\pocketmine-mp\src\utils\Git.php");
+require_once("vendor\pocketmine\pocketmine-mp\src\utils\Process.php");
+require_once("vendor\pocketmine\pocketmine-mp\src\utils\Terminal.php");
+require_once("vendor\pocketmine\pocketmine-mp\src\utils\Utils.php");
 
 /**
  * @return Generator

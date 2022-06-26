@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace abstractkits\object;
 
+use pocketmine\data\bedrock\EffectIdMap;
+use pocketmine\data\bedrock\EnchantmentIdMap;
 use pocketmine\entity\effect\EffectInstance;
+use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\StringToItemParser;
@@ -104,6 +107,14 @@ final class Kit {
                 $item->setLore(array_map(fn(string $lore) => TextFormat::colorize($lore), $itemSerialized['lore']));
             }
 
+            foreach ($itemsSerialized['enchants'] ?? [] as $enchantData) {
+                if (($enchantment = EnchantmentIdMap::getInstance()->fromId($enchantData['id'])) === null) {
+                    continue;
+                }
+
+                $item->addEnchantment(new EnchantmentInstance($enchantment, $enchantData['level']));
+            }
+
             $item->setCustomBlockData(($item->getCustomBlockData() ?? CompoundTag::create())
                 ->setString('kit_name', $kitName)
             );
@@ -119,12 +130,26 @@ final class Kit {
     }
 
     /**
-     * @param array $serialized
+     * @param array $effectsSerialized
      *
      * @return EffectInstance[]
      */
-    private static function deserializeEffects(array $serialized): array {
-        return [];
+    private static function deserializeEffects(array $effectsSerialized): array {
+        /** @var EffectInstance[] $effects */
+        $effects = [];
+
+        foreach ($effectsSerialized as $serialized) {
+            if (($effectType = EffectIdMap::getInstance()->fromId($serialized['type'])) === null) continue;
+
+            $effects[] = new EffectInstance(
+                $effectType,
+                $serialized['duration'],
+            $serialized['amplifier'],
+                $serialized['visible']
+            );
+        }
+
+        return $effects;
     }
 
     /**

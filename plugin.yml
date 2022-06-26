@@ -4,4 +4,9 @@ author: Abstract
 version: "0.1"
 api: 4.0.0
 main: abstractkits\AbstractKits
+permissions:
+  abstract.kits.admin.create:
+    default: op
+  abstract.kits.admin.select:
+    default: op
 ...
