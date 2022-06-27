@@ -42,7 +42,7 @@ final class StorageProvider {
             ]);
             $this->config->save();
         } catch (Exception $e) {
-            AbstractKits::getInstance()->getLogger()->error('An error occurred when tried save the supports config... Error: ' . $e->getTraceAsString());
+            AbstractKits::getInstance()->getLogger()->error('An error occurred when tried save the Kits config... Error: ' . $e->getTraceAsString());
         }
     }
 
@@ -67,7 +67,7 @@ final class StorageProvider {
             $this->config->set($xuid, $countdowns);
             $this->config->save();
         } catch (Exception $e) {
-            AbstractKits::getInstance()->getLogger()->error('An error occurred when tried save the supports config... Error: ' . $e->getTraceAsString());
+            AbstractKits::getInstance()->getLogger()->error('An error occurred when tried save the Kits config... Error: ' . $e->getTraceAsString());
         }
     }
 
@@ -103,7 +103,7 @@ final class StorageProvider {
                 default => 'Undefined'
             } . '(s)';
         } catch (Exception $e) {
-            AbstractKits::getInstance()->getLogger()->error('An error occurred when tried save the supports config... Error: ' . $e->getTraceAsString());
+            AbstractKits::getInstance()->getLogger()->error('An error occurred when tried save the Kits config... Error: ' . $e->getTraceAsString());
         }
 
         return null;
