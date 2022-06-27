@@ -6,7 +6,8 @@ namespace abstractkits\command;
 
 use abstractkits\AbstractKits;
 use abstractkits\command\argument\CreateArgument;
-use abstractkits\command\argument\SelectArgument;
+use abstractkits\command\argument\ResetArgument;
+use abstractkits\provider\StorageProvider;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\transaction\DeterministicInvMenuTransaction;
 use muqsit\invmenu\type\InvMenuTypeIds;
@@ -34,7 +35,7 @@ final class KitCommand extends Command {
 
         $this->addArgument(
             new CreateArgument('create', 'abstract.kits.admin.create'),
-            new SelectArgument('select', 'abstract.kits.admin.select')
+            new ResetArgument('reset', 'abstract.kits.admin.reset')
         );
     }
 
@@ -98,10 +99,17 @@ final class KitCommand extends Command {
         if (!$sender instanceof Player) return false;
 
         $menu = InvMenu::create(InvMenuTypeIds::TYPE_DOUBLE_CHEST)
-            ->setName(is_string($title = AbstractKits::getInstance()->getConfig()->get('menu-title')) ? $title : '');
+            ->setName(is_string($title = AbstractKits::getInstance()->getConfig()->get('menu-title')) ? TextFormat::colorize($title) : '');
 
         foreach (AbstractKits::getInstance()->getKits() as $kit) {
             if (($representativeItem = $kit->getRepresentativeItem()) === null) continue;
+
+            $countdownString = StorageProvider::getInstance()->getNiceCountdown($sender->getXuid(), $kit->getName());
+
+            $representativeItem->setLore(array_map(
+                fn(string $lore) => str_replace('<time>', $countdownString === null ? 'now' : $countdownString, $lore),
+                $representativeItem->getLore()
+            ));
 
             $menu->getInventory()->setItem($kit->getRepresentativeSlot(), $representativeItem);
         }
@@ -120,13 +128,28 @@ final class KitCommand extends Command {
             $player->removeCurrentWindow();
 
             if ($kit->getRepresentativeSlot() !== $transaction->getAction()->getSlot()) {
-                $player->sendMessage(AbstractKits::prefix() . TextFormat::RED . 'An error occurred when tried execute support action... The support slot is incorrect.');
+                $player->sendMessage(AbstractKits::prefix() . TextFormat::RED . 'An error occurred when tried execute kit action... The kit representative slot is incorrect.');
 
                 return;
             }
 
-            // TODO: Check if the player already has countdown
+            if (($countdownString = StorageProvider::getInstance()->getNiceCountdown($player->getXuid(), $kit->getName())) !== null) {
+                $player->sendMessage(AbstractKits::replacePlaceholder('player-kit-countdown', AbstractKits::prefix(), $kit->getName(), $countdownString));
 
+                return;
+            }
+
+            $player->sendMessage(AbstractKits::prefix() . TextFormat::GREEN . 'Kit ' . TextFormat::BLUE . $kit->getName() . TextFormat::GREEN . ' successfully selected!');
+
+            foreach (array_merge($kit->getInventory(), $kit->getArmor()) as $item) {
+                if (!$player->getInventory()->canAddItem($item)) {
+                    $player->getWorld()->dropItem($player->getLocation(), $item);
+                } else {
+                    $player->getInventory()->addItem($item);
+                }
+            }
+
+            StorageProvider::getInstance()->storeSync($player->getXuid(), $player->getName(), $kit);
         }));
 
         $menu->send($sender);

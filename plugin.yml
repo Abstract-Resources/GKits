@@ -7,6 +7,6 @@ main: abstractkits\AbstractKits
 permissions:
   abstract.kits.admin.create:
     default: op
-  abstract.kits.admin.select:
+  abstract.kits.admin.reset:
     default: op
 ...

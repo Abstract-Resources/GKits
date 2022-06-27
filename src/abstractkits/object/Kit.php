@@ -45,7 +45,7 @@ final class Kit {
      * @return Item|null
      */
     public function getRepresentativeItem(): ?Item {
-        return $this->representativeItem;
+        return ($representativeItem = $this->representativeItem) !== null ? clone $representativeItem : null;
     }
 
     /**

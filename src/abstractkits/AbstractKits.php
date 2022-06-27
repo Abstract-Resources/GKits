@@ -7,7 +7,7 @@ namespace abstractkits;
 use abstractkits\command\KitCommand;
 use abstractkits\listener\PlayerJoinListener;
 use abstractkits\object\Kit;
-use abstractkits\storage\Storage;
+use abstractkits\provider\StorageProvider;
 use Exception;
 use muqsit\invmenu\InvMenuHandler;
 use pocketmine\data\bedrock\EffectIdMap;
@@ -41,7 +41,7 @@ final class AbstractKits extends PluginBase {
 
         $this->getServer()->getLogger()->info(self::prefix() . TextFormat::AQUA . 'Successfully loaded ' . count($this->kits) . ' kit(s)!');
 
-        Storage::getInstance()->init();
+        StorageProvider::getInstance()->init();
 
         $this->getServer()->getCommandMap()->register(KitCommand::class, new KitCommand('kit', 'AbstractKits command management'));
 
@@ -131,6 +131,26 @@ final class AbstractKits extends PluginBase {
      */
     public function getKits(): array {
         return $this->kits;
+    }
+
+    /**
+     * @param string $message
+     * @param string ...$args
+     *
+     * @return string
+     */
+    public static function replacePlaceholder(string $message, string... $args): string {
+        if (is_array($text = self::getInstance()->getConfig()->get($message))) {
+            $text = implode("\n", $text);
+        }
+
+        if (!is_string($text)) return $message;
+
+        foreach ($args as $i => $arg) {
+            $text = str_replace('{%' . $i . '}', $arg, $text);
+        }
+
+        return TextFormat::colorize($text);
     }
 
     /**
