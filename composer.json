@@ -14,10 +14,13 @@
   },
 
   "require-dev": {
+    "abstract/invmenu": "4.0.x-dev",
     "phpstan/phpstan": "^1.2.0",
     "phpstan/phpstan-strict-rules": "^1.1.0",
     "pocketmine/pocketmine-mp": "^4.2.4"
   },
+
+  "repositories": [{"type": "vcs", "url":  "git@github.com:wXav/InvMenu"}],
 
   "autoload": {
     "psr-4": {"": ["src"]}

@@ -17,14 +17,17 @@ use pocketmine\utils\TextFormat;
 final class Kit {
 
     /**
-     * @param string $name
-     * @param int    $countdown
-     * @param Item[]  $armor
-     * @param Item[]  $inventory
-     * @param EffectInstance[]  $effects
+     * @param string           $name
+     * @param Item|null        $representativeItem
+     * @param int              $countdown
+     * @param Item[]           $armor
+     * @param Item[]           $inventory
+     * @param EffectInstance[] $effects
      */
     public function __construct(
         private string $name,
+        private ?Item $representativeItem,
+        private int $representativeSlot,
         private int $countdown,
         private array $armor,
         private array $inventory,
@@ -36,6 +39,20 @@ final class Kit {
      */
     public function getName(): string {
         return $this->name;
+    }
+
+    /**
+     * @return Item|null
+     */
+    public function getRepresentativeItem(): ?Item {
+        return $this->representativeItem;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRepresentativeSlot(): int {
+        return $this->representativeSlot;
     }
 
     /**
@@ -75,6 +92,8 @@ final class Kit {
     public static function deserialize(string $name, array $serialized): Kit {
         return new Kit(
             $name,
+            self::deserializeItems($name, isset($serialized['representativeItem']) ? [$serialized['representativeItem']] : [])[0] ?? null,
+            $serialized['representativeSlot'] ?? 0,
             $serialized['countdown'] ?? 0,
             self::deserializeItems($name, $serialized['armor'] ?? []),
             self::deserializeItems($name, $serialized['items'] ?? []),
@@ -100,11 +119,11 @@ final class Kit {
             if (($item = self::parseItem($itemSerialized['id'])) === null) continue;
 
             if (isset($itemSerialized['name'])) {
-                $item->setCustomName(TextFormat::colorize($itemSerialized['name']));
+                $item->setCustomName(TextFormat::colorize('&r' . $itemSerialized['name']));
             }
 
             if (isset($itemSerialized['lore']) && is_array($itemSerialized['lore'])) {
-                $item->setLore(array_map(fn(string $lore) => TextFormat::colorize($lore), $itemSerialized['lore']));
+                $item->setLore(array_map(fn(string $lore) => TextFormat::colorize('&r' . $lore), $itemSerialized['lore']));
             }
 
             foreach ($itemsSerialized['enchants'] ?? [] as $enchantData) {

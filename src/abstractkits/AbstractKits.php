@@ -9,11 +9,13 @@ use abstractkits\listener\PlayerJoinListener;
 use abstractkits\object\Kit;
 use abstractkits\storage\Storage;
 use Exception;
+use muqsit\invmenu\InvMenuHandler;
 use pocketmine\data\bedrock\EffectIdMap;
 use pocketmine\data\bedrock\EnchantmentIdMap;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
 use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginException;
 use pocketmine\utils\Config;
@@ -29,6 +31,8 @@ final class AbstractKits extends PluginBase {
     public function onEnable(): void {
         self::setInstance($this);
 
+        $this->saveDefaultConfig();
+
         foreach ((new Config($this->getDataFolder() . 'kits.yml'))->getAll() as $kitName => $kitSerialized) {
             if (!is_string($kitName) || !is_array($kitSerialized)) continue;
 
@@ -42,6 +46,8 @@ final class AbstractKits extends PluginBase {
         $this->getServer()->getCommandMap()->register(KitCommand::class, new KitCommand('kit', 'AbstractKits command management'));
 
         $this->getServer()->getPluginManager()->registerEvents(new PlayerJoinListener(), $this);
+
+        if (!InvMenuHandler::isRegistered()) InvMenuHandler::register($this);
     }
 
     /**
@@ -55,6 +61,8 @@ final class AbstractKits extends PluginBase {
 
         try {
             $config = new Config($this->getDataFolder() . 'kits.yml');
+
+            $representativeItem = $kit->getRepresentativeItem() ?? VanillaItems::DIAMOND();
 
             $config->set($kit->getName(), [
                 'countdown' => $kit->getCountdown(),
@@ -85,7 +93,14 @@ final class AbstractKits extends PluginBase {
                     'duration' => $effectInstance->getDuration(),
                     'amplifier' => $effectInstance->getAmplifier(),
                     'visible' => $effectInstance->isVisible()
-                ], $kit->getEffects())
+                ], $kit->getEffects()),
+                'representativeItem' => [
+                    'id' => $representativeItem->getId(),
+                    'meta' => $representativeItem->getMeta(),
+                    'name' => $representativeItem->getCustomName(),
+                    'lore' => $representativeItem->getLore()
+                ],
+                'representativeSlot' => $kit->getRepresentativeSlot()
             ]);
             $config->save();
         } catch (Exception $e) {
@@ -109,6 +124,13 @@ final class AbstractKits extends PluginBase {
      */
     public function getKitNonNull(string $name): Kit {
         return $this->getKit($name) ?? throw new PluginException('Invalid kit called as \'' . $name . '\'');
+    }
+
+    /**
+     * @return Kit[]
+     */
+    public function getKits(): array {
+        return $this->kits;
     }
 
     /**
